@@ -13,7 +13,7 @@ export default function Filtro() {
   }, []);
 
   const filtered = launches.filter((l) => {
-    if (successOnly && failureOnly) return false;
+    if (successOnly && failureOnly) return true; // mostrar todos si ambos están activados
     if (successOnly) return l.success === true;
     if (failureOnly) return l.success === false;
     return true;
@@ -35,7 +35,10 @@ export default function Filtro() {
         <Text>Mostrar solo exitosos</Text>
         <Switch
           value={successOnly}
-          onValueChange={() => setSuccessOnly(!successOnly)}
+          onValueChange={(val) => {
+            setSuccessOnly(val);
+            if (val) setFailureOnly(false);
+          }}
         />
       </View>
 
@@ -43,7 +46,10 @@ export default function Filtro() {
         <Text>Mostrar solo fallidos</Text>
         <Switch
           value={failureOnly}
-          onValueChange={() => setFailureOnly(!failureOnly)}
+          onValueChange={(val) => {
+            setFailureOnly(val);
+            if (val) setSuccessOnly(false);
+          }}
         />
       </View>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, ScrollView, Alert, StyleSheet } from 'react-native';
-import { auth, firestore } from '../firebase/firebaseConfig'; // Ajusta ruta y configuración
+import { auth, firestore } from '../../firebase/firebaseConfig';
 
 export default function Usuario() {
   const [usuario, setUsuario] = useState(null);
@@ -12,14 +12,12 @@ export default function Usuario() {
     rol: '',
   });
   const [imagenes, setImagenes] = useState([]);
-  const [nuevaUrl, setNuevaUrl] = useState('');
 
   useEffect(() => {
     const cargarUsuario = async () => {
       const user = auth.currentUser;
       if (user) {
         setForm((f) => ({ ...f, correo: user.email }));
-        // Cargar datos extra desde Firestore
         const doc = await firestore.collection('usuarios').doc(user.uid).get();
         if (doc.exists) {
           setUsuario({ id: user.uid, ...doc.data() });
@@ -56,20 +54,6 @@ export default function Usuario() {
       Alert.alert('Éxito', 'Datos actualizados');
     } catch (error) {
       Alert.alert('Error', 'No se pudieron actualizar los datos');
-    }
-  };
-
-  const handleAgregarUrl = async () => {
-    if (!nuevaUrl.trim()) return;
-    try {
-      await firestore.collection('multimedia').add({
-        url: nuevaUrl,
-        usuarioid: usuario.id,
-      });
-      setNuevaUrl('');
-      cargarImagenes(usuario.id);
-    } catch (error) {
-      Alert.alert('Error', 'Error al agregar la imagen');
     }
   };
 
@@ -150,18 +134,6 @@ export default function Usuario() {
 
       <Button title="Guardar cambios" onPress={handleUpdate} />
 
-      <View style={{ marginVertical: 20 }}>
-        <Text style={styles.subtitle}>Agregar nueva imagen (URL):</Text>
-        <TextInput
-          style={styles.input}
-          value={nuevaUrl}
-          onChangeText={setNuevaUrl}
-          placeholder="https://ejemplo.com/imagen.jpg"
-        />
-        <Button title="Agregar Imagen" onPress={handleAgregarUrl} />
-      </View>
-
-      <Text style={styles.subtitle}>Imágenes:</Text>
       {imagenes.map(img => (
         <View key={img.id} style={styles.imageItem}>
           <Text>{img.url}</Text>

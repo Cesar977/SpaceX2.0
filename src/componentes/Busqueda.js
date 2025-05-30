@@ -1,84 +1,123 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {
+  View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput
+} from 'react-native';
 
-export default function Busqueda() {
-  const [launches, setLaunches] = useState([]);
-  const [query, setQuery] = useState('');
-  const navigation = useNavigation();
+export default function Busqueda({ navigation }) {
+  const [lanzamientos, setLanzamientos] = useState([]);
+  const [filteredLanzamientos, setFilteredLanzamientos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetch('https://api.spacexdata.com/v4/launches')
-      .then((res) => res.json())
-      .then((data) => setLaunches(data));
+    async function fetchLanzamientos() {
+      try {
+        const res = await fetch('https://api.spacexdata.com/v4/launches');
+        const data = await res.json();
+        setLanzamientos(data);
+        setFilteredLanzamientos(data);
+      } catch (err) {
+        console.error('Error cargando lanzamientos', err);
+      }
+      setLoading(false);
+    }
+
+    fetchLanzamientos();
   }, []);
 
-  const filteredLaunches = launches.filter((launch) =>
-    launch.name.toLowerCase().includes(query.toLowerCase())
-  );
+  // Filtra lanzamientos cuando cambia search
+  useEffect(() => {
+    const filtered = lanzamientos.filter(l =>
+      l.name.toLowerCase().includes(search.toLowerCase())
+    );
+    setFilteredLanzamientos(filtered);
+  }, [search, lanzamientos]);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.item}
       onPress={() => navigation.navigate('Perfil', { id: item.id })}
     >
-      <Text style={styles.launchName}>{item.name}</Text>
+      <Text style={styles.name}>{item.name}</Text>
+      <Text style={styles.date}>
+        {new Date(item.date_utc).toLocaleDateString()}
+      </Text>
     </TouchableOpacity>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="blue" />
+        <Text>Cargando lanzamientos...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Buscar Lanzamientos</Text>
       <TextInput
-        style={styles.input}
-        placeholder="Buscar por nombre de lanzamiento..."
-        value={query}
-        onChangeText={setQuery}
+        style={styles.searchInput}
+        placeholder="Buscar por nombre..."
+        value={search}
+        onChangeText={setSearch}
+        autoCorrect={false}
+        autoCapitalize="none"
+        clearButtonMode="while-editing"
       />
-
-      {filteredLaunches.length > 0 ? (
-        <FlatList
-          data={filteredLaunches}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-        />
-      ) : (
-        <Text style={styles.emptyText}>No se encontraron resultados.</Text>
-      )}
+      <FlatList
+        data={filteredLanzamientos}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
+        ListEmptyComponent={<Text style={styles.emptyText}>No se encontraron lanzamientos.</Text>}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
     flex: 1,
-    backgroundColor: '#fff',
+    padding: 16,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 12,
   },
-  input: {
-    borderWidth: 1,
+  searchInput: {
+    height: 40,
     borderColor: '#ccc',
-    padding: 10,
+    borderWidth: 1,
     borderRadius: 8,
-    marginBottom: 15,
+    paddingHorizontal: 10,
+    marginBottom: 12,
   },
   item: {
     padding: 12,
-    backgroundColor: '#f1f1f1',
-    marginVertical: 6,
+    marginBottom: 10,
+    borderWidth: 1,
     borderRadius: 8,
+    borderColor: '#ccc',
   },
-  launchName: {
+  name: {
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  date: {
+    fontSize: 14,
+    color: '#555',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyText: {
-    marginTop: 20,
     textAlign: 'center',
+    marginTop: 20,
     fontStyle: 'italic',
+    color: '#666',
   },
 });

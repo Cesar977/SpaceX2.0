@@ -1,6 +1,7 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+// filepath: /workspaces/SpaceX2.0/firebase/firebaseConfig.js
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDbG1dTHZuIEumPqWAbHa7ghrt7DT6mdnA",
@@ -12,8 +13,11 @@ const firebaseConfig = {
   measurementId: "G-HD9QQEY4K3"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const firestore = getFirestore(app);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
-export { app, auth, firestore };
+const auth = firebase.auth();
+const firestore = firebase.firestore();
+
+export { auth, firestore };
