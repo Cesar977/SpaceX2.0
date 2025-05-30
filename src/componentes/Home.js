@@ -1,9 +1,22 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Home() {
   const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => navigation.navigate('Preguntados')} style={{ marginRight: 15 }}>
+          <Ionicons name="game-controller-outline" size={24} color="tomato" />
+        </TouchableOpacity>
+      ),
+      headerShown: true,
+      title: 'Home',
+    });
+  }, [navigation]);
 
   const noticias = [
     {

@@ -5,9 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/firebaseConfig';
-import { Ionicons } from '@expo/vector-icons'; // Íconos para pestañas
+import { Ionicons } from '@expo/vector-icons';
 
-// Componentes de pantalla
 import Home from './src/componentes/Home';
 import Agregar from './src/componentes/Agregar';
 import Lista from './src/componentes/Lista';
@@ -19,6 +18,7 @@ import Perfil from './src/componentes/Perfil';
 import Multimedia from './src/componentes/Multimedia';
 import Login from './src/componentes/Login';
 import Registro from './src/componentes/Registro';
+import Preguntados from './src/componentes/Preguntados';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -32,14 +32,30 @@ function AppTabs() {
           let iconName;
 
           switch (route.name) {
-            case 'Home': iconName = 'home-outline'; break;
-            case 'Lista': iconName = 'list-outline'; break;
-            case 'Agregar': iconName = 'add-circle-outline'; break;
-            case 'Filtro': iconName = 'options-outline'; break;
-            case 'Busqueda': iconName = 'search-outline'; break;
-            case 'Favoritos': iconName = 'heart-outline'; break;
-            case 'Usuarios': iconName = 'people-outline'; break;
-            default: iconName = 'ellipse-outline'; break;
+            case 'Home':
+              iconName = 'home-outline';
+              break;
+            case 'Lista':
+              iconName = 'list-outline';
+              break;
+            case 'Agregar':
+              iconName = 'add-circle-outline';
+              break;
+            case 'Filtro':
+              iconName = 'options-outline';
+              break;
+            case 'Busqueda':
+              iconName = 'search-outline';
+              break;
+            case 'Favoritos':
+              iconName = 'heart-outline';
+              break;
+            case 'Usuarios':
+              iconName = 'people-outline';
+              break;
+            default:
+              iconName = 'ellipse-outline';
+              break;
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -50,11 +66,15 @@ function AppTabs() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Lista" component={Lista} />
-      <Tab.Screen name="Agregar" component={Agregar} />
       <Tab.Screen name="Filtro" component={Filtro} />
       <Tab.Screen name="Busqueda" component={Busqueda} />
       <Tab.Screen name="Favoritos" component={Favoritos} />
-      <Tab.Screen name="Usuarios" component={Usuario} />
+      <Tab.Screen
+        name="Usuarios"
+        component={Usuario}
+        options={{ tabBarLabel: 'Perfil' }}
+      />
+      <Tab.Screen name="Agregar" component={Agregar} />
     </Tab.Navigator>
   );
 }
@@ -70,10 +90,11 @@ function AuthStack() {
 
 function AppStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Tabs" component={AppTabs} />
-      <Stack.Screen name="Perfil" component={Perfil} />
-      <Stack.Screen name="Multimedia" component={Multimedia} />
+    <Stack.Navigator>
+      <Stack.Screen name="Tabs" component={AppTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="Perfil" component={Perfil} options={{ headerShown: true }} />
+      <Stack.Screen name="Multimedia" component={Multimedia} options={{ headerShown: true }} />
+      <Stack.Screen name="Preguntados" component={Preguntados} options={{ headerShown: true, title: 'Preguntados' }} />
     </Stack.Navigator>
   );
 }
@@ -93,7 +114,7 @@ export default function App() {
   if (cargando) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="tomato" />
       </View>
     );
   }
